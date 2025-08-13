@@ -5,7 +5,7 @@ from sklearn.linear_model import LogisticRegression # 线性模型模块
 from sklearn.tree import DecisionTreeClassifier # 决策树模块
 from sklearn.neighbors import KNeighborsClassifier # KNN 模型模块
 
-# 读取数据
+# 读取数据并显示前五行
 dataset = pd.read_csv("dataset.csv", sep="\t", header=None)
 print(dataset.head(5))
 
