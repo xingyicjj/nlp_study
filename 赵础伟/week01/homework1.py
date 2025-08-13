@@ -19,3 +19,15 @@ model.fit(input_feature,data[1].values)
 test_string_sentence = " ".join(jieba.lcut("明天天气怎么样"))
 test_result = model.predict(vectorizer.transform([test_string_sentence]))
 print("KNN模型预测结果: ", test_result)
+
+
+
+
+
+import jieba
+import torch
+import sklearn
+
+print("jieba:",jieba.__version__)
+print("torch:",torch.__version__)
+print("sklearn:",sklearn.__version__)
