@@ -70,37 +70,34 @@ model = BertForSequenceClassification.from_pretrained(MODEL_PATH, num_labels=2)
 optimizer = torch.optim.AdamW(model.parameters(), lr=2e-5)
 
 # 训练模型
-# model.train()
-# epochs = 1
-# for epoch in range(epochs):
-#     count = 0
-#     for items in train_loader:
-#         # 参数
-#         input_ids = items['input_ids']
-#         attention_mask = items['attention_mask']
-#         labels = items['labels']
-#         # 前向传播 计算结果
-#         model_result = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
-#         # 损失
-#         loss = model_result.loss
-#         # 清除梯度
-#         optimizer.zero_grad()
-#         # 反向传播
-#         loss.backward()
-#         # 梯度裁剪，防止梯度爆炸
-#         torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
-#         # 更新参数
-#         optimizer.step()
-#         # 打印
-#         count += 1
-#         print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, epochs, count, len(train_loader), loss.item()))
-#
-# # 保存模型
-# torch.save(model.state_dict(), WEIGHT_PATH)
-# print(f"模型已保存至 {WEIGHT_PATH}")
+model.train()
+epochs = 1
+for epoch in range(epochs):
+    count = 0
+    for items in train_loader:
+        # 参数
+        input_ids = items['input_ids']
+        attention_mask = items['attention_mask']
+        labels = items['labels']
+        # 前向传播 计算结果
+        model_result = model(input_ids=input_ids, attention_mask=attention_mask, labels=labels)
+        # 损失
+        loss = model_result.loss
+        # 清除梯度
+        optimizer.zero_grad()
+        # 反向传播
+        loss.backward()
+        # 梯度裁剪，防止梯度爆炸
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        # 更新参数
+        optimizer.step()
+        # 打印
+        count += 1
+        print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}'.format(epoch + 1, epochs, count, len(train_loader), loss.item()))
 
-# 加载参数
-model.load_state_dict(torch.load(WEIGHT_PATH))
+# 保存模型
+torch.save(model.state_dict(), WEIGHT_PATH)
+print(f"模型已保存至 {WEIGHT_PATH}")
 
 
 # 精度计算函数
