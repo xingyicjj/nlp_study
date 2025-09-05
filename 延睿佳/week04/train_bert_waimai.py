@@ -61,7 +61,7 @@ def compute_metrics(eval_pred):
 
 # 配置训练参数
 training_args = TrainingArguments(
-    output_dir='./assets/weights/bert_waimai/', # 训练输出目录，用于保存模型和状态
+    output_dir='./assets/weights/bert/', # 训练输出目录，用于保存模型和状态
     num_train_epochs=4,                  # 训练的总轮数
     per_device_train_batch_size=16,      # 训练时每个设备（GPU/CPU）的批次大小
     per_device_eval_batch_size=16,       # 评估时每个设备的批次大小
@@ -92,7 +92,7 @@ best_model_path = trainer.state.best_model_checkpoint
 if best_model_path:
     best_model = BertForSequenceClassification.from_pretrained(best_model_path)
     print(f"The best model is located at: {best_model_path}")
-    torch.save(best_model.state_dict(), './assets/weights/bert_waimai.pt')
-    print("Best model saved to assets/weights/bert_waimai.pt")
+    torch.save(best_model.state_dict(), './assets/weights/bert.pt')
+    print("Best model saved to assets/weights/bert.pt")
 else:
     print("Could not find the best model checkpoint.")
