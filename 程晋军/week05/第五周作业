@@ -1,5 +1,3 @@
-https://fcnbisyf4ls8.feishu.cn/wiki/OyWhwZBRpiUdH6kP7JYcvEtMnXc?from=from_copylink
-
 作业3：
 1.通过增删改查把政府文档存进sqlite中，
 2.再用es对sqlite中的内容进行搜索，通过knowledge_id，docment_it获取sqlite存储的知识。
