@@ -1,7 +1,7 @@
 
 from openai import OpenAI
 
-client = OpenAI(api_key="sk-ba6c90b8843d4ccd993c12fcfd2893b3", base_url="https://api.deepseek.com")
+client = OpenAI(api_key="sk-ba6c9*******3c12fcfd2893b3", base_url="https://api.deepseek.com")
 
 response = client.chat.completions.create(
     model="deepseek-chat", # 非思考模式
@@ -12,5 +12,6 @@ response = client.chat.completions.create(
     ],
     stream=False
 )
+
 
 print(response.choices[0].message.content)
