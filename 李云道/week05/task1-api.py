@@ -4,7 +4,7 @@ from openai import OpenAI
 申请deepseek的api，https://platform.deepseek.com/usage， 使用openai 库调用云端大模型。
 '''
 
-client = OpenAI(api_key="sk-7e9963bef1154d1cbbc859ebcfe19655", base_url="https://api.deepseek.com")
+client = OpenAI(api_key="sk-7e9963be*******19655", base_url="https://api.deepseek.com")
 
 response = client.chat.completions.create(
     model="deepseek-chat",
