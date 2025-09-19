@@ -3,7 +3,7 @@ import json
 
 # https://bailian.console.aliyun.com/?tab=api#/api/?type=model&url=2712576
 client = openai.OpenAI(
-    api_key="sk-2525a42dd3e24d60bf64f77d9288574f", # https://bailian.console.aliyun.com/?tab=model#/api-key
+    api_key="sk-2525a42dd******9288574f", # https://bailian.console.aliyun.com/?tab=model#/api-key
     base_url="https://api.deepseek.com",
 )
 
