@@ -1,23 +1,23 @@
-import codecs  # 用于读取文件，支持多种编码格式（比如处理中文文件不容易乱码）
+import codecs  
 import numpy as np
 import pandas as pd
 
 from transformers import (
-    AutoTokenizer,   # 自动加载模型对应的分词器
-    AutoModelForCausalLM,  # 自动加载因果语言模型
-    DataCollatorForSeq2Seq,  # 用于处理seq2seq任务的数据整理器
-    TrainingArguments,  # 训练参数配置类
-    Trainer,  # 训练器，封装了训练过程
+    AutoTokenizer,  
+    AutoModelForCausalLM, 
+    DataCollatorForSeq2Seq, 
+    TrainingArguments, 
+    Trainer,  
 )
-from datasets import Dataset  # 自定义数据集
+from datasets import Dataset 
 import torch
 from peft import LoraConfig, TaskType, get_peft_model, PeftModel
 from tqdm import tqdm
-from sklearn.metrics import accuracy_score, classification_report  # 评估模型的工具（计算准确率、F1分数等）
+from sklearn.metrics import accuracy_score, classification_report  
 import os
 import warnings
 
-warnings.filterwarnings('ignore')  # 忽略警告（让输出更干净）
+warnings.filterwarnings('ignore') 
 
 
 # 定义标签类型（NER任务的核心：给每个字打标签）
@@ -31,7 +31,7 @@ label2id = {label: i for i, label in enumerate(tag_type)}
 def load_and_preprocess_data():
     # 加载训练数据
     train_lines = codecs.open('./msra/train/sentences.txt').readlines()[:1000]
-    # 处理句子：去掉空格和前后换行（比如原句子可能有多余空格，清理一下）
+
     train_lines = [x.replace(' ', '').strip() for x in train_lines]
 
     train_tags = codecs.open('./msra/train/tags.txt').readlines()[:1000]
@@ -78,7 +78,7 @@ def load_and_preprocess_data():
 
 # 提取实体
 def extract_entities(text, labels):
-    entities = []  # 存最终提取的实体（(实体内容, 类型)）
+    entities = []  
     current_entity = ""
     current_type = ""
 
@@ -132,21 +132,16 @@ def process_func(example, tokenizer, max_length=384):
     处理单个样本的函数
     将指令和输出转换为模型训练格式
     """
-    # 构建指令部分，按照特定格式组织文字
-    # <|im_start|>和<|im_end|>是特殊标记，告诉模型哪里是系统提示、用户输入和助手回复
     instruction_text = f"<|im_start|>system\n现在进行实体抽取任务，类型只能是ORG（机构），PER（人名），LOC（地名），直接输出结果，格式为'类型：实体'，识别不出实体就输出'未识别到实体'<|im_end|>\n<|im_start|>user\n{example['instruction'] + example['input']}<|im_end|>\n<|im_start|>assistant\n"
     instruction = tokenizer(instruction_text, add_special_tokens=False)   # 分词处理
 
-    # 构建响应部分（也就是我们期望模型输出的结果）
     response = tokenizer(f"{example['output']}", add_special_tokens=False)
 
-    # 组合输入ID和注意力掩码
-    # 输入ID是文字对应的数字，注意力掩码用于告诉模型哪些词需要关注
+
     input_ids = instruction["input_ids"] + response["input_ids"] + [tokenizer.pad_token_id]
     attention_mask = instruction["attention_mask"] + response["attention_mask"] + [1]
 
-    # 构建标签（用于计算损失）
-    # 指令部分用-100忽略，只计算响应部分的损失
+
     labels = [-100] * len(instruction["input_ids"]) + response["input_ids"] + [tokenizer.pad_token_id]
 
     # 截断超过最大长度的序列
@@ -165,18 +160,18 @@ def process_func(example, tokenizer, max_length=384):
 def setup_lora(model):
     """设置LoRA配置并应用到模型"""
     config = LoraConfig(
-        task_type=TaskType.CAUSAL_LM,   # 任务类型：因果语言模型
-        # 指定要微调的模块，这些是模型中负责注意力和前馈网络的关键部分
+        task_type=TaskType.CAUSAL_LM,  
+
         target_modules=["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
-        inference_mode=False,  # 指定是训练模式
-        r=8,   # LoRA的秩，控制参数数量，越小参数越少
-        lora_alpha=32,   # LoRA的缩放参数
-        lora_dropout=0.1  # dropout概率，防止过拟合
+        inference_mode=False,  
+        r=8,  
+        lora_alpha=32,   
+        lora_dropout=0.1 
     )
 
-    # 将LoRA配置应用到模型
+
     model = get_peft_model(model, config)
-    # 打印可训练的参数数量
+
     model.print_trainable_parameters()
 
     return model
@@ -186,16 +181,16 @@ def setup_training_args():
     """设置训练参数"""
     return TrainingArguments(
         output_dir="./output_ner_Qwen1.5",
-        per_device_train_batch_size=6,  # 每个设备的训练批次大小
-        gradient_accumulation_steps=4,  # 梯度累积步数，相当于增大批次大小
-        logging_steps=100,   # 每100步打印一次日志
-        do_eval=True,   # 进行评估
-        eval_steps=50,    # 每50步评估一次
-        num_train_epochs=5,   # 训练5个epoch
-        save_steps=50,   # 每50步保存一次模型
+        per_device_train_batch_size=6,  
+        gradient_accumulation_steps=4, 
+        logging_steps=100,   
+        do_eval=True,  
+        eval_steps=50,   
+        num_train_epochs=5,  
+        save_steps=50,   
         learning_rate=1e-4,
-        gradient_checkpointing=True,   # 启用梯度检查点，节省内存
-        report_to="none"  # 禁用wandb等报告工具
+        gradient_checkpointing=True,  
+        report_to="none" 
     )
 
 # 预测函数
@@ -207,21 +202,17 @@ def predict_ner(model, tokenizer, text):
         {"role": "user", "content": f"请从以下文本中抽取实体，包含机构（ORG），人名（PER），地名（LOC）: {text}"}   # 用户输入
     ]
 
-    # 应用聊天模板，把消息格式化成模型需要的样子
+
     formatted_text = tokenizer.apply_chat_template(
         messages,
         tokenize=False,
-        add_generation_prompt=True  # 添加生成提示，告诉模型该它回复了
+        add_generation_prompt=True 
     )
 
-    # # 把文本转换成模型能处理的格式，并放到GPU上
     model_inputs = tokenizer([formatted_text], return_tensors="pt").to("mps")
 
     # 生成预测
     with torch.no_grad():
-        # model.generate() 的输出 generated_ids 是一个二维数组，形状是 [1, 总长度]
-        # 并不是 “只包含模型预测的结果”，而是 “原始输入的 input_ids + 模型新生成的结果的 input_ids”
-        # 相当于把 “输入的内容” 和 “模型给你的回复” 拼在了一起
         generated_ids = model.generate(
             model_inputs.input_ids,
             max_new_tokens=100,                  # 最多生成512个新token
@@ -321,7 +312,6 @@ def test_example():
     model_path = "/Users/wangyingyue/materials/大模型学习资料——八斗/models/Qwen/Qwen3-0.6B"
     tokenizer, base_model = initialize_model_and_tokenizer(model_path)
 
-    # 加载训练好的LoRA权重 - 使用正确的方式
     adapter_path = "./output_ner_Qwen1.5/"
     # 检查适配器文件是否存在
     if not os.path.exists(os.path.join(adapter_path, "adapter_config.json")):
