@@ -4,7 +4,7 @@ from openai import OpenAI
 
 # https://bailian.console.aliyun.com/?tab=api#/api/?type=model&url=2712576
 client = openai.OpenAI(
-    api_key="sk-2f0f4d94c5d349a3a74830a5e4f4da15", # https://bailian.console.aliyun.com/?tab=model#/api-key
+    api_key="sk-2f0f4d94cxxxxxx4f4da15", # https://bailian.console.aliyun.com/?tab=model#/api-key
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
 )
 
